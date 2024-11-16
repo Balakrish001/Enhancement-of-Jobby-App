@@ -27,6 +27,7 @@ class Jobs extends Component {
     searchInput: '',
     activeSalaryRangeId: '',
     employmentTypesChecked: [],
+    employmentLocationsChecked: [],
   }
 
   componentDidMount() {
@@ -48,18 +49,38 @@ class Jobs extends Component {
     this.setState({employmentTypesChecked: updatedList}, this.getJobs)
   }
 
+  updateEmploymentLocationsChecked = typeId => {
+    const {employmentLocationsChecked} = this.state
+    let updatedList = employmentLocationsChecked
+    if (employmentLocationsChecked.includes(typeId)) {
+      updatedList = employmentLocationsChecked.filter(
+        eachType => eachType !== typeId,
+      )
+    } else {
+      updatedList = [...updatedList, typeId]
+    }
+
+    this.setState({employmentLocationsChecked: updatedList}, this.getJobs)
+  }
+
   updateSalaryRangeId = activeSalaryRangeId =>
     this.setState({activeSalaryRangeId}, this.getJobs)
 
   getJobs = async () => {
     this.setState({jobsApiStatus: apiStatusConstants.inProgress})
 
-    const {activeSalaryRangeId, employmentTypesChecked, searchInput} =
-      this.state
+    const {
+      activeSalaryRangeId,
+      employmentTypesChecked,
+      employmentLocationsChecked,
+      searchInput,
+    } = this.state
 
     const employTypes = employmentTypesChecked.join(',')
+    const employLocation = employmentLocationsChecked.join(',')
+
     const jwtToken = Cookies.get('jwt_token')
-    const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employTypes}&minimum_package=${activeSalaryRangeId}&search=${searchInput}`
+    const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employTypes}&minimum_package=${activeSalaryRangeId}&locations_type=${employLocation}&search=${searchInput}`
 
     const options = {
       headers: {
@@ -149,6 +170,7 @@ class Jobs extends Component {
       profileApiStatus,
       activeSalaryRangeId,
       employmentTypesChecked,
+      employmentLocationsChecked,
     } = this.state
     return (
       <div className="side-bar">
@@ -164,6 +186,10 @@ class Jobs extends Component {
           activeSalaryRangeId={activeSalaryRangeId}
           updateEmploymentTypesChecked={this.updateEmploymentTypesChecked}
           employmentTypesChecked={employmentTypesChecked}
+          updateEmploymentLocationsChecked={
+            this.updateEmploymentLocationsChecked
+          }
+          employmentLocationsChecked={employmentLocationsChecked}
         />
       </div>
     )
